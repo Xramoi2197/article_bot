@@ -6,6 +6,7 @@ from aiogram.types.bot_command import BotCommand
 
 from app.config import load_config
 from app.handlers.common import register_handlers_common
+from app.handlers.articles import register_handlers_articles
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,7 @@ async def main():
     dp = Dispatcher(bot=bot, storage=MemoryStorage())
 
     register_handlers_common(dp)
+    register_handlers_articles(dp)
 
     await set_commands(bot)
 
