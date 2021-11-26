@@ -1,6 +1,7 @@
 import asyncio
 import logging
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.types.bot_command import BotCommand
 
 from app.config import load_config
@@ -11,7 +12,9 @@ logger = logging.getLogger(__name__)
 
 async def set_commands(bot: Bot):
     commands = [
-        BotCommand(command="/help", description="Помощь"),
+        BotCommand(command="/articles", description="Articles"),
+        BotCommand(command="/more", description="More"),
+        BotCommand(command="/help", description="Help"),
     ]
     await bot.set_my_commands(commands)
 
@@ -26,7 +29,7 @@ async def main():
     config = load_config("config/bot.ini")
 
     bot = Bot(token=config.tg_bot.token)
-    dp = Dispatcher(bot=bot)
+    dp = Dispatcher(bot=bot, storage=MemoryStorage())
 
     register_handlers_common(dp)
 
