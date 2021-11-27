@@ -31,6 +31,7 @@ def register_handlers_articles(dp: dispatcher):
     )
     dp.register_message_handler(
         cancel_article_menu,
+        lambda mg: mg.text == ArticleMenuOptions().cancel,
         state=ArticlesStates.waiting_for_article_menu_input,
     )
 
@@ -46,9 +47,11 @@ async def call_article_menu(message: types.Message):
         menu.cancel,
     ]
     keyboard.add(*buttons)
+    await message.answer_sticker(r"CAACAgIAAxkBAAEDXxdhofbcBUKd9TAnn-vA7miyagVjMwACqQwAAsKEqEuk98oo6Ftp5CIE", reply_markup=keyboard)
     await message.answer("What should I do?", reply_markup=keyboard)
 
 
 async def cancel_article_menu(message: types.Message, state: FSMContext):
     await state.finish()
+    await message.answer_sticker(r"CAACAgIAAxkBAAEDXythohby9ypCz9ZYNOdHapZ8isG5GgACpw8AAmwCsEuGHNhMS20YAAEiBA")
     await message.answer("Contact me again later!", reply_markup=types.ReplyKeyboardRemove())
