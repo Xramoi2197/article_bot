@@ -1,0 +1,4 @@
+[tg_bot]
+token = 1234567890:zHxTvVhBvMIgQqAAKgAAPsmmlWQ_NePcBiE
+admin_id = 12345678
+db_conn_str = postgresql+psycopg2://username:password@localhost:5432/dbname
