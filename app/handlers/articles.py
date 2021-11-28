@@ -5,6 +5,11 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from ..accessory import is_url
+from ..storage import engine
+from ..config import load_config
+
+
+config = load_config("config/bot.ini")
 
 
 @dataclass
@@ -19,7 +24,7 @@ class ArticlesStates(StatesGroup):
     waiting_for_article_menu_input = State()
 
 
-def register_handlers_articles(dp: dispatcher, db_engine: Any):
+def register_handlers_articles(dp: dispatcher):
     dp.register_message_handler(
         call_article_menu,
         commands="articles",
@@ -39,7 +44,6 @@ def register_handlers_articles(dp: dispatcher, db_engine: Any):
         add_new_article,
         lambda mg: is_url(mg.text.lower().strip()),
         state="*",
-        db_engine=db_engine
     )
 
 
@@ -71,10 +75,8 @@ async def cancel_article_menu(message: types.Message, state: FSMContext):
     )
 
 
-async def add_new_article(message: types.Message, state: FSMContext, db_engine: Any):
+async def add_new_article(message: types.Message, state: FSMContext):
     await state.finish()
-    await message.answer(
-        "Okay", reply_markup=types.ReplyKeyboardRemove()
-    )
-
-    
+    db_engine = engine.create_engine(config.tg_bot.db_conn_str)
+    print(db_engine)
+    await message.answer("OK", reply_markup=types.ReplyKeyboardRemove())
