@@ -7,6 +7,7 @@ from aiogram.types.bot_command import BotCommand
 from app.config import load_config
 from app.handlers.common import register_handlers_common
 from app.handlers.articles import register_handlers_articles
+import app.storage.engine as engine
 
 logger = logging.getLogger(__name__)
 
@@ -29,11 +30,13 @@ async def main():
 
     config = load_config("config/bot.ini")
 
+    db_engine = engine.create_engine(config.tg_bot.db_conn_str)
+
     bot = Bot(token=config.tg_bot.token)
     dp = Dispatcher(bot=bot, storage=MemoryStorage())
 
     register_handlers_common(dp)
-    register_handlers_articles(dp)
+    register_handlers_articles(dp, db_engine)
 
     await set_commands(bot)
 

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from typing import Text
+from typing import Any
 from aiogram import dispatcher, types
-from aiogram.dispatcher import FSMContext, storage
+from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from ..accessory import is_url
@@ -19,7 +19,7 @@ class ArticlesStates(StatesGroup):
     waiting_for_article_menu_input = State()
 
 
-def register_handlers_articles(dp: dispatcher):
+def register_handlers_articles(dp: dispatcher, db_engine: Any):
     dp.register_message_handler(
         call_article_menu,
         commands="articles",
@@ -39,6 +39,7 @@ def register_handlers_articles(dp: dispatcher):
         add_new_article,
         lambda mg: is_url(mg.text.lower().strip()),
         state="*",
+        db_engine=db_engine
     )
 
 
@@ -70,7 +71,7 @@ async def cancel_article_menu(message: types.Message, state: FSMContext):
     )
 
 
-async def add_new_article(message: types.Message, state: FSMContext):
+async def add_new_article(message: types.Message, state: FSMContext, db_engine: Any):
     await state.finish()
     await message.answer(
         "Okay", reply_markup=types.ReplyKeyboardRemove()
