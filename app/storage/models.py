@@ -11,7 +11,8 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer(), primary_key=True)
-    tg_id = Column(Integer(), nullable=False, unique=True)
+    tg_user_id = Column(Integer(), nullable=False, unique=True)
+    articles = relationship("Article", backref="users", passive_deletes=True)
 
 
 class Tag(Base):
@@ -29,14 +30,13 @@ class Article(Base):
     create_date = Column(DateTime(), default=datetime.now, nullable=False)
     mark = Column(Integer(), default=0)
     last_show_date = Column(DateTime(), nullable=True)
-    user_id = Column(ForeignKey("users.id"))
-    user = relationship("User", backref=backref("articles"))
-    tags = relationship("Tag", secondary="article_tags", back_populates="articles")
+    user_id = Column(ForeignKey("users.id", ondelete="CASCADE"))
+    tags = relationship(Tag, secondary="article_tags", back_populates="articles")
     __table_args__ = (CheckConstraint("-1 < mark and mark < 11", name="mark_check"),)
 
 
 class ArticleTag(Base):
     __tablename__ = "article_tags"
     id = Column(Integer, primary_key=True)
-    article_id = Column(ForeignKey("articles.id"))
-    tag_id = Column(ForeignKey("tags.id"))
+    article_id = Column(ForeignKey("articles.id", ondelete="CASCADE"))
+    tag_id = Column(ForeignKey("tags.id", ondelete="CASCADE"))

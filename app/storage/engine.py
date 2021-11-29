@@ -15,17 +15,17 @@ def make_session(db_engine: sqlalchemy.engine.Engine):
     return Session()
 
 
-def add_article(db_conn_str: str, tg_user_id: str, url: str):
+def add_article(db_conn_str: str, tg_user_id: int, url: str):
     db_engine = create_engine(db_conn_str)
     session = make_session(db_engine=db_engine)
     db_user_id = None
-    query_results = session.query(User).filter(User.tg_id == tg_user_id)
+    query_results = session.query(User).filter(User.tg_user_id == tg_user_id)
     if query_results.count() != 1:
-        new_user = User(tg_id=tg_user_id)
+        new_user = User(tg_user_id=tg_user_id)
         session.add(new_user)
         session.commit()
         session.refresh(new_user)
         db_user_id = new_user.id
     else:
-        db_user_id = query_results.fetchone().id
+        db_user_id = query_results.first().id
     return db_user_id
