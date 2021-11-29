@@ -77,6 +77,6 @@ async def cancel_article_menu(message: types.Message, state: FSMContext):
 
 async def add_new_article(message: types.Message, state: FSMContext):
     await state.finish()
-    db_engine = engine.create_engine(config.tg_bot.db_conn_str)
     print(message.from_user.id)
-    await message.answer("OK", reply_markup=types.ReplyKeyboardRemove())
+    print(engine.add_article(config.tg_bot.db_conn_str, message.from_user.id, message.text.strip().lower()))
+    await message.answer(str(message.from_user.id) + "\n" + str(engine.add_article(config.tg_bot.db_conn_str, message.from_user.id, message.text.strip().lower())), reply_markup=types.ReplyKeyboardRemove())

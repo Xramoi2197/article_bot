@@ -11,7 +11,7 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer(), primary_key=True)
-    tg_id = Column(String(50), nullable=False, unique=True)
+    tg_id = Column(Integer(), nullable=False, unique=True)
 
 
 class Tag(Base):
