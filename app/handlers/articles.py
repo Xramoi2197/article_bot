@@ -78,6 +78,13 @@ async def cancel_article_menu(message: types.Message, state: FSMContext):
 async def add_new_article(message: types.Message, state: FSMContext):
     await state.finish()
     print(message.from_user.id)
-    res = engine.add_article(config.tg_bot.db_conn_str, message.from_user.id, message.text.strip().lower())
-    print(res)
-    await message.answer(str(message.from_user.id) + "\n" + str(res), reply_markup=types.ReplyKeyboardRemove())
+    res = None
+    try:
+        res = engine.add_article(config.tg_bot.db_conn_str, message.from_user.id, message.text.strip().lower())
+    except:
+        await message.answer("Some problems, mb article is already in database? =(", reply_markup=types.ReplyKeyboardRemove())
+    else:
+        if res == None:
+            await message.answer("Sorry I can't find your article...", reply_markup=types.ReplyKeyboardRemove())
+        else:
+            await message.answer("OK " + res, reply_markup=types.ReplyKeyboardRemove())
