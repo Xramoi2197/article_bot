@@ -31,10 +31,24 @@ def add_article(db_conn_str: str, tg_user_id: int, url_str: str):
     else:
         db_user_id = query_results.first().id
     url_data = get_url_date(url_str=url_str)
-    print(url_data)
     if url_data != None:
         new_article = Article(title=url_data[0], url=url_str, user_id=db_user_id)
         session.add(new_article)
         session.commit()
         return new_article.title
     return None
+
+
+def get_articles_page(db_conn_str: str, tg_user_id: int, page_num: int):
+    db_engine = create_engine(db_conn_str)
+    session = make_session(db_engine=db_engine)
+    result = {}
+    articles_per_page = 5
+    articles = (
+        Article.query.filter(Article.user_id == tg_user_id)
+        .order_by(Article.create_date.desc())
+        .paginate(page_num, articles_per_page, error_out=False)
+    )
+    for article in articles:
+        result[article.url] = article.title
+    return result
