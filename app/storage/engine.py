@@ -1,6 +1,5 @@
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.sql.functions import user
 
 from ..additional.func import get_url_date
 
@@ -12,14 +11,13 @@ def create_engine(conn_str: str):
     return sqlalchemy.create_engine(conn_str)
 
 
-def make_session(db_engine: sqlalchemy.engine.Engine):
+def create_session(db_engine: sqlalchemy.engine.Engine):
     Session = sessionmaker(bind=db_engine)
     return Session()
 
 
-def add_article(db_conn_str: str, tg_user_id: int, url_str: str):
-    db_engine = create_engine(db_conn_str)
-    session = make_session(db_engine=db_engine)
+def add_article(db_engine: sqlalchemy.engine.Engine, tg_user_id: int, url_str: str):
+    session = create_session(db_engine=db_engine)
     db_user_id = None
     query_results = session.query(User).filter(User.tg_user_id == tg_user_id)
     if query_results.count() != 1:
@@ -39,9 +37,8 @@ def add_article(db_conn_str: str, tg_user_id: int, url_str: str):
     return None
 
 
-def get_articles_page(db_conn_str: str, tg_user_id: int, page_num: int):
-    db_engine = create_engine(db_conn_str)
-    session = make_session(db_engine=db_engine)
+def get_articles_page(db_engine: sqlalchemy.engine.Engine, tg_user_id: int, page_num: int):
+    session = create_session(db_engine=db_engine)
     result = {}
     articles_per_page = 5
     articles = (

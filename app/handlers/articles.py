@@ -3,6 +3,7 @@ from typing import Any
 from aiogram import dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from sqlalchemy.engine import create_engine
 
 from ..additional.func import is_url
 from ..additional.stickers import (
@@ -84,8 +85,9 @@ async def add_new_article(message: types.Message, state: FSMContext):
     await state.finish()
     res = None
     try:
+        db_engine = create_engine(config.tg_bot.db_conn_str)
         res = engine.add_article(
-            config.tg_bot.db_conn_str,
+            db_engine,
             message.from_user.id,
             message.text.strip().lower(),
         )
