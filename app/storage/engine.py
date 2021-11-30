@@ -2,7 +2,7 @@ import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.functions import user
 
-from ..accessory import get_url_date
+from ..additional.func import get_url_date
 
 
 from .models import User, Article, ArticleTag, Tag

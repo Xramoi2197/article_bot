@@ -2,7 +2,7 @@ import validators
 import requests
 from bs4 import BeautifulSoup
 
-from .storage.models import MAX_ARTICLE_TITLE_LENGHT
+from ..storage.models import MAX_ARTICLE_TITLE_LENGHT
 
 OK = 200
 
