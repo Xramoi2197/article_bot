@@ -33,6 +33,7 @@ class ArticlesStates(StatesGroup):
 
 
 def register_handlers_articles(dp: dispatcher):
+    articles_menu = ArticleMenuOptions()
     dp.register_message_handler(
         call_article_menu,
         commands="articles",
@@ -45,7 +46,7 @@ def register_handlers_articles(dp: dispatcher):
     )
     dp.register_message_handler(
         cancel_article_menu,
-        lambda mg: mg.text == ArticleMenuOptions().cancel,
+        lambda mg: mg.text == articles_menu.cancel,
         state=ArticlesStates.waiting_for_article_menu_input,
     )
     dp.register_message_handler(
@@ -55,7 +56,7 @@ def register_handlers_articles(dp: dispatcher):
     )
     dp.register_message_handler(
         list_all_articles,
-        lambda mg: mg.text == ArticleMenuOptions().list_articles,
+        lambda mg: mg.text == articles_menu.list_articles,
         state=ArticlesStates.waiting_for_article_menu_input,
     )
 
@@ -131,4 +132,7 @@ async def list_all_articles(message: types.Message, state: FSMContext):
     await message.answer(
         "List len: " + str(res), reply_markup=types.ReplyKeyboardRemove()
     )
+    inline_btn_1 = types.InlineKeyboardButton("Первая кнопка!", callback_data="button1")
+    inline_kb1 = types.InlineKeyboardMarkup().add(inline_btn_1)
+    await message.reply("Первая инлайн кнопка", reply_markup=inline_kb1)
     await state.finish()
