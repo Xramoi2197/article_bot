@@ -15,7 +15,7 @@ class User(Base):
     __tablename__ = "users"
     id = Column(Integer(), primary_key=True)
     tg_user_id = Column(Integer(), nullable=False, unique=True)
-    articles = relationship("Article", backref="users", passive_deletes=True)
+    articles = relationship("Article", backref="users", lazy='dynamic', passive_deletes=True)
 
 
 class Tag(Base):

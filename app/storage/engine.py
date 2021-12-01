@@ -37,15 +37,24 @@ def add_article(db_engine: sqlalchemy.engine.Engine, tg_user_id: int, url_str: s
     return None
 
 
-def get_articles_page(db_engine: sqlalchemy.engine.Engine, tg_user_id: int, page_num: int):
+def get_articles_page(
+    db_engine: sqlalchemy.engine.Engine, tg_user_id: int, page_num: int
+):
+    if page_num < 1:
+        return []
     session = make_session(db_engine=db_engine)
-    result = {}
+    result = []
     articles_per_page = 5
     articles = (
-        Article.query.filter(Article.user_id == tg_user_id)
-        .order_by(Article.create_date.desc())
-        .paginate(page_num, articles_per_page, error_out=False)
+        session.query(User)
+        .filter(User.tg_user_id == tg_user_id)
+        .one()
+        .articles.order_by(Article.create_date.desc())
+        .offset((page_num - 1) * articles_per_page)
+        .limit(articles_per_page)
     )
+    if not articles:
+        return []
     for article in articles:
-        result[article.url] = article.title
+        result.append((article.title, article.url))
     return result
