@@ -49,7 +49,7 @@ def get_articles_page(
         session.query(User)
         .filter(User.tg_user_id == tg_user_id)
         .one()
-        .articles.order_by(Article.create_date.desc())
+        .articles.order_by(Article.create_date.asc())
         .offset((page_num - 1) * articles_per_page)
         .limit(articles_per_page)
     )

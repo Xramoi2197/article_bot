@@ -6,7 +6,7 @@ from datetime import datetime
 
 
 MAX_ARTICLE_TITLE_LENGHT = 250
-MAX_ARTICLE_URL_LENGHT = 300
+MAX_ARTICLE_URL_LENGHT = 2000
 MAX_TAG_NAME_LENGHT = 50
 Base = declarative_base()
 

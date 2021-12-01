@@ -29,7 +29,6 @@ class ArticleMenuOptions:
 
 class ArticlesStates(StatesGroup):
     waiting_for_article_menu_input = State()
-    list_articles_state = State()
 
 
 def register_handlers_articles(dp: dispatcher):
@@ -61,7 +60,7 @@ def register_handlers_articles(dp: dispatcher):
     )
     dp.register_callback_query_handler(
         callback_articles_pagination,
-        lambda c: c.data == "button1",
+        lambda c: "page_button" in c.data,
     )
 
 
@@ -71,8 +70,8 @@ async def call_article_menu(message: types.Message):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     buttons = [
         menu.list_articles,
-        menu.list_articles,
-        menu.subscribe,
+        # menu.list_articles,
+        # menu.subscribe,
         menu.cancel,
     ]
     keyboard.add(*buttons)
@@ -122,27 +121,61 @@ async def add_new_article(message: types.Message, state: FSMContext):
 
 
 async def list_all_articles(message: types.Message, state: FSMContext):
-    user_data = await state.get_data()
-    page = None
-    if "page" not in user_data.keys():
-        await ArticlesStates.list_articles_state.set()
-        page = 1
-        await state.update_data(page=page)
-    else:
-        page = user_data["page"]
+    page = 1
     db_engine = engine.create_engine(config.tg_bot.db_conn_str)
     lst = engine.get_articles_page(db_engine, message.from_user.id, page)
-    res = len(lst)
-    await message.answer(
-        "List len: " + str(res), reply_markup=types.ReplyKeyboardRemove()
-    )
-    inline_btn_1 = types.InlineKeyboardButton("Первая кнопка!", callback_data="button1")
-    inline_kb1 = types.InlineKeyboardMarkup().add(inline_btn_1)
-    await message.reply("Первая инлайн кнопка", reply_markup=inline_kb1)
-    await state.finish()
+    next_lst = engine.get_articles_page(db_engine, message.from_user.id, page + 1)
+    inline_buttons = types.InlineKeyboardMarkup()
+    if len(lst) == 0:
+        await message.answer_sticker(
+            TIRED_GIRL, reply_markup=types.ReplyKeyboardRemove()
+        )
+        await message.answer("I didn't find any articles in database(")
+        await state.finish()
+    else:
+        if len(next_lst) > 0:
+            inline_btn_next = types.InlineKeyboardButton(
+                "Next", callback_data="page_button?" + str(page + 1)
+            )
+            inline_buttons.add(inline_btn_next)
+        message_text = "\n".join(
+            [f"<a href='{article[1]}'>{article[0]}</a>" for article in lst]
+        )
+        await message.answer_sticker(
+            OKAY_GIRL, reply_markup=types.ReplyKeyboardRemove()
+        )
+        await state.finish()
+        await message.answer(
+            message_text,
+            parse_mode=types.ParseMode.HTML,
+            reply_markup=inline_buttons,
+        )
 
 
 async def callback_articles_pagination(call: types.CallbackQuery):
-    inline_btn_1 = types.InlineKeyboardButton("Вторая кнопка!", callback_data="button1")
-    inline_kb1 = types.InlineKeyboardMarkup().add(inline_btn_1)
-    await call.message.edit_text("Вторая инлайн кнопка", reply_markup=inline_kb1)
+    page = int(call.data.split("?")[1])
+    db_engine = engine.create_engine(config.tg_bot.db_conn_str)
+    lst = engine.get_articles_page(db_engine, call.from_user.id, page)
+    next_lst = engine.get_articles_page(db_engine, call.from_user.id, page + 1)
+    inline_buttons = types.InlineKeyboardMarkup()
+    if len(lst) == 0:
+        await call.message.edit_text("I didn't find any articles in database(")
+    else:
+        if page != 1:
+            inline_btn_previous = types.InlineKeyboardButton(
+                "Previous", callback_data="page_button?" + str(page - 1)
+            )
+            inline_buttons.insert(inline_btn_previous)
+        if len(next_lst) > 0:
+            inline_btn_next = types.InlineKeyboardButton(
+                "Next", callback_data="page_button?" + str(page + 1)
+            )
+            inline_buttons.insert(inline_btn_next)
+        message_text = "\n".join(
+            [f"<a href='{article[1]}'>{article[0]}</a>" for article in lst]
+        )
+        await call.message.edit_text(
+            message_text,
+            parse_mode=types.ParseMode.HTML,
+            reply_markup=inline_buttons,
+        )
