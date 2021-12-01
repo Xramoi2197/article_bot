@@ -59,6 +59,10 @@ def register_handlers_articles(dp: dispatcher):
         lambda mg: mg.text == articles_menu.list_articles,
         state=ArticlesStates.waiting_for_article_menu_input,
     )
+    dp.register_callback_query_handler(
+        callback_articles_pagination,
+        lambda c: c.data == "button1",
+    )
 
 
 async def call_article_menu(message: types.Message):
@@ -136,3 +140,9 @@ async def list_all_articles(message: types.Message, state: FSMContext):
     inline_kb1 = types.InlineKeyboardMarkup().add(inline_btn_1)
     await message.reply("Первая инлайн кнопка", reply_markup=inline_kb1)
     await state.finish()
+
+
+async def callback_articles_pagination(call: types.CallbackQuery):
+    inline_btn_1 = types.InlineKeyboardButton("Вторая кнопка!", callback_data="button1")
+    inline_kb1 = types.InlineKeyboardMarkup().add(inline_btn_1)
+    await call.message.edit_text("Вторая инлайн кнопка", reply_markup=inline_kb1)
